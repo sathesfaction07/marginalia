@@ -1,0 +1,32 @@
+[
+    {
+        "title": "Product Restriction - Age-Gated Items",
+        "process": "classification",
+        "keywords": ["age", "restricted", "children", "toy", "cpsia"],
+        "content": "Products marketed to children under 12 must comply with CPSIA testing requirements. If a product has age-related keywords (kids, children, toddler) in the title or bullet points AND is in a toy-adjacent category, it must be classified as restricted until documentation is provided. Exception: costumes and dress-up items without included accessories are NOT restricted under this rule."
+    },
+    {
+        "title": "Merchant Appeal - First Rejection Response",
+        "process": "appeals",
+        "keywords": ["appeal", "rejection", "first", "response", "merchant"],
+        "content": "For first-time rejections, use Template A. The response must include: (1) specific reason for restriction citing the data point that triggered it, (2) clear action items for the merchant to resolve, (3) link to the relevant help page. Do NOT use empathetic language on first rejection — keep it factual and instructional. Empathetic tone is reserved for 3rd+ rejections only."
+    },
+    {
+        "title": "False Positive Resolution - Out of Stock Items",
+        "process": "classification",
+        "keywords": ["false positive", "oos", "out of stock"],
+        "content": "If a product is classified as restricted but the listing shows Out of Stock status, resolve as FALSE_POSITIVE_OOS using resolution code RC-1001. The merchant does not need to provide documentation for OOS items. Notify via standard FALSE_POSITIVE_OOS template which includes the link for re-listing when stock is available."
+    },
+    {
+        "title": "Escalation Criteria - When to Route to SME",
+        "process": "general",
+        "keywords": ["escalate", "sme", "uncertain", "complex"],
+        "content": "Route to SME when: (1) product falls into two contradictory categories simultaneously, (2) the merchant provides documentation but it's in a language you cannot verify, (3) the product is a collectible that might be mistaken for a children's toy, (4) three or more associates have disagreed on the same product ID in the past 90 days."
+    },
+    {
+        "title": "Image Review Protocol",
+        "process": "classification",
+        "keywords": ["image", "review", "photo", "child", "visual"],
+        "content": "Image review is required when text attributes are ambiguous but the product imagery might clarify intent. Specifically: if the title says 'action figure' but images show a child playing with it, classify as restricted. If images show only the product on a white background with no human subjects, rely on text attributes alone."
+    }
+]

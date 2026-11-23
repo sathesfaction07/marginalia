@@ -1,0 +1,103 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: ruff check src/ tests/
+      - run: pytest tests/ -v --cov=src --cov-report=xml --cov-fail-under=70
+
+  extension:
+    # The extension was the only code in the portfolio with no tests and no CI reference.
+    # `node:test` and `node:vm` are built in, so this job installs nothing.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: extension
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Test the shipped scripts as shipped
+        run: npm test
+
+      - name: The manifest and the code agree with each other
+        run: |
+          # A manifest naming a file that does not exist installs fine and then does nothing,
+          # so the paths are checked as data rather than trusted.
+          node -e "
+          const fs = require('node:fs');
+          const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+          const referenced = [
+            manifest.background.service_worker,
+            manifest.action.default_popup,
+            ...manifest.content_scripts.flatMap((e) => e.js),
+          ];
+          for (const rel of referenced) {
+            if (!fs.existsSync(rel)) throw new Error('manifest names a missing file: ' + rel);
+          }
+          if (manifest.manifest_version !== 3) throw new Error('expected manifest v3');
+          if (!manifest.permissions.includes('storage')) throw new Error('storage is used');
+          const worker = fs.readFileSync('src/background/service-worker.js', 'utf8');
+          const base = worker.match(/const API_BASE = \"([^\"]+)\"/)[1];
+          if (!manifest.host_permissions.some((p) => p.startsWith(base))) {
+            throw new Error('host_permissions does not cover ' + base);
+          }
+          console.log('  manifest names ' + referenced.length + ' files, all present');
+          "
+
+      - name: Two defects found while writing those tests stay fixed
+        run: |
+          node -e "
+          const fs = require('node:fs'), vm = require('node:vm');
+
+          // DEFECT 1: both cache callers did an inline query.toLowerCase(), so a message with
+          // no query threw in cacheResult, the outer catch threw AGAIN in getCachedResult, and
+          // handleQuery REJECTED -- the listener does .then(sendResponse), so nothing ever
+          // answered and the popup waited forever.
+          const chrome = {
+            runtime: { onMessage: { addListener() {} } },
+            storage: { local: { async set() {}, async get() { return {}; }, async remove() {} } },
+          };
+          const ctx = {
+            chrome, console, Date, JSON, String,
+            fetch: async () => ({ ok: true, json: async () => ({ answer: 'x' }) }),
+          };
+          vm.createContext(ctx);
+          vm.runInContext(fs.readFileSync('src/background/service-worker.js', 'utf8'), ctx);
+          if (ctx.cacheKey(undefined) !== 'cache:') throw new Error('cacheKey must tolerate undefined');
+          if (ctx.cacheKey('  Foo  ') !== 'cache:foo') throw new Error('cacheKey must normalise');
+          ctx.handleQuery({}).then((r) => {
+            if (!r || r.success !== true) throw new Error('a query with no text must still resolve');
+
+            // DEFECT 2: the separator class had no space, so 'Case ID:' -- the spelling a page
+            // actually shows a human -- never matched, while case_id and case-id did.
+            const content = fs.readFileSync('src/content/content.js', 'utf8');
+            const pattern = new RegExp(content.match(/caseIdPattern = \/(.+)\/i;/)[1], 'i');
+            for (const text of ['Case ID: ABC-123', 'case_id ABC-123', 'CASE ID: ABC-123']) {
+              const m = text.match(pattern);
+              if (!m || m[1] !== 'ABC-123') throw new Error('no match for ' + text);
+            }
+            console.log('  both defects stay fixed');
+          });
+          "

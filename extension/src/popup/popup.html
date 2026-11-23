@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    width: 400px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0a0e1a;
+    color: #e8eaed;
+    padding: 20px;
+    line-height: 1.5;
+}
+
+h1 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #00d4aa;
+    margin-bottom: 16px;
+}
+
+.region-select {
+    width: 100%;
+    padding: 10px 12px;
+    background: #111827;
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #e8eaed;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.region-select:focus { border-color: rgba(0,212,170,0.4); }
+
+.query-input {
+    width: 100%;
+    padding: 12px;
+    background: #111827;
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #e8eaed;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    resize: vertical;
+    min-height: 70px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.query-input:focus { border-color: rgba(0,212,170,0.4); }
+.query-input::placeholder { color: rgba(255,255,255,0.25); }
+
+.submit-btn {
+    width: 100%;
+    padding: 11px;
+    background: #00d4aa;
+    color: #0a0e1a;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 12px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px -5px rgba(0,212,170,0.3);
+}
+.submit-btn:hover { background: #00e4b8; box-shadow: 0 0 25px -3px rgba(0,212,170,0.4); }
+.submit-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+.result {
+    margin-top: 16px;
+    padding: 14px;
+    background: #111827;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+.result.visible { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+.result-answer {
+    color: #e0e0e0;
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.result-meta {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.confidence {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+}
+.confidence.high { background: rgba(0,212,170,0.12); color: #00d4aa; }
+.confidence.medium { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.confidence.low { background: rgba(239,68,68,0.12); color: #ef4444; }
+
+.result-sources {
+    margin-top: 8px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.cache-badge {
+    font-size: 9px;
+    color: #f59e0b;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.feedback {
+    margin-top: 12px;
+    display: none;
+    gap: 8px;
+}
+.feedback.visible { display: flex; }
+.feedback button {
+    flex: 1;
+    padding: 7px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+}
+.feedback button:hover { border-color: rgba(0,212,170,0.3); color: #00d4aa; }
+
+.error {
+    color: #ef4444;
+    font-size: 11px;
+    margin-top: 10px;
+    display: none;
+    padding: 10px;
+    background: rgba(239,68,68,0.06);
+    border: 1px solid rgba(239,68,68,0.15);
+    border-radius: 8px;
+}
+.error.visible { display: block; }
+</style>
+</head>
+<body>
+    <h1>POLICY ASSIST</h1>
+    <select class="region-select" id="region">
+        <option value="US">US</option>
+        <option value="CA">CA</option>
+        <option value="AU">AU</option>
+        <option value="SG">SG</option>
+        <option value="DE">DE</option>
+        <option value="FR">FR</option>
+    </select>
+    <textarea class="query-input" id="query" placeholder="Ask a question about the process..."></textarea>
+    <button class="submit-btn" id="submit">Ask</button>
+    <div class="error" id="error"></div>
+    <div class="result" id="result">
+        <div class="result-answer" id="answer"></div>
+        <div class="result-meta">
+            <span class="confidence" id="confidence"></span>
+            <span class="cache-badge" id="cache-badge"></span>
+        </div>
+        <div class="result-sources" id="sources"></div>
+    </div>
+    <div class="feedback" id="feedback">
+        <button id="helpful">✓ Helpful</button>
+        <button id="not-helpful">✗ Not helpful</button>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>

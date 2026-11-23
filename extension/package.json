@@ -1,0 +1,9 @@
+{
+  "name": "policy-assist-extension",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PolicyAssist browser extension. Tests use node:test, so there are no dependencies.",
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\""
+  }
+}
