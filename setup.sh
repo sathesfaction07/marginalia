@@ -16,7 +16,7 @@ setup_venv() {
 
 select_backend() {
     echo ""
-    echo "  PolicyAssist retrieval backend:"
+    echo "  Marginalia retrieval backend:"
     echo "  1) Keyword matching (no cloud, zero setup)"
     echo "  2) AWS Bedrock Knowledge Bases (managed RAG)"
     echo "  3) ChromaDB (local semantic search — downloads 400MB model)"
@@ -32,7 +32,7 @@ setup_aws_kb() {
     read -p "AWS Account ID: " ACCT
     read -p "Region [us-east-1]: " REGION; REGION=${REGION:-us-east-1}
     read -p "Bedrock Knowledge Base ID: " KB_ID
-    ROLE="PolicyAssist-AppRole"
+    ROLE="Marginalia-AppRole"
     POLICY=$(cat <<EOF
 {"Version":"2012-10-17","Statement":[
   {"Effect":"Allow","Action":["bedrock:InvokeModel"],"Resource":"arn:aws:bedrock:${REGION}::foundation-model/*"},
@@ -43,7 +43,7 @@ EOF
     TRUST="{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${ACCT}:root\"},\"Action\":\"sts:AssumeRole\"}]}"
 
     aws iam get-role --role-name "$ROLE" &>/dev/null 2>&1 || aws iam create-role --role-name "$ROLE" --assume-role-policy-document "$TRUST" --output text --query 'Role.Arn'
-    aws iam put-role-policy --role-name "$ROLE" --policy-name "PolicyAssist-Bedrock" --policy-document "$POLICY" 2>/dev/null
+    aws iam put-role-policy --role-name "$ROLE" --policy-name "Marginalia-Bedrock" --policy-document "$POLICY" 2>/dev/null
 
     cat > backend/.env <<EOF
 PA_RETRIEVAL_BACKEND=bedrock_kb
@@ -54,7 +54,7 @@ EOF
 }
 
 setup_chromadb() {
-    cd backend && pip install "policy-assist[chromadb]" --quiet && cd ..
+    cd backend && pip install "marginalia[chromadb]" --quiet && cd ..
     cat > backend/.env <<EOF
 PA_RETRIEVAL_BACKEND=chromadb
 EOF
@@ -64,7 +64,7 @@ EOF
 run_app() {
     echo ""
     echo "═══════════════════════════════════════════════════════════════"
-    echo "  Starting PolicyAssist..."
+    echo "  Starting Marginalia..."
     echo "  Backend: http://localhost:8000"
     echo "  Extension: Load extension/ as unpacked in chrome://extensions"
     echo "═══════════════════════════════════════════════════════════════"
@@ -75,7 +75,7 @@ run_app() {
 
 main() {
     echo "╔═══════════════════════════════════════════════════════════════╗"
-    echo "║            PolicyAssist — Setup & Run                        ║"
+    echo "║            Marginalia — Setup & Run                        ║"
     echo "╚═══════════════════════════════════════════════════════════════╝"
     detect_os; find_python; setup_venv; select_backend; run_app
 }

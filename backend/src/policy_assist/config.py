@@ -6,7 +6,7 @@ class Settings(BaseSettings):
 
     bedrock_model: str = "us.anthropic.claude-sonnet-4-6-20250514-v1:0"
     bedrock_region: str = "us-east-1"
-    kb_bucket: str = "policy-assist-kb"
+    kb_bucket: str = "marginalia-kb"
     kb_prefix: str = "knowledge-bases/"
     supported_regions_str: str = "US,CA,AU,SG,DE,FR"
 

@@ -1,4 +1,4 @@
-# PolicyAssist
+# Marginalia
 
 A Chrome extension + Python backend that gives compliance associates instant answers to process questions. The associate types a question, the backend retrieves relevant SOP sections using semantic search, sends them to Claude as context, and returns a direct answer. Supports multi-turn conversations, multiple retrieval backends, and non-English queries.
 
@@ -35,7 +35,7 @@ The biggest accuracy lever. Three options, configurable at runtime:
 | Backend | How it finds relevant sections | Accuracy | Cost | Setup |
 |:--|:--|:--|:--|:--|
 | `keyword` (default) | Token overlap between query and section titles/keywords/content | ~70-80% | Free | None — works immediately |
-| `chromadb` | Embeds all SOPs with sentence-transformers, vector similarity search | ~90-95% | Free (local) | `pip install "policy-assist[chromadb]"` + one-time indexing |
+| `chromadb` | Embeds all SOPs with sentence-transformers, vector similarity search | ~90-95% | Free (local) | `pip install "marginalia[chromadb]"` + one-time indexing |
 | `bedrock_kb` | AWS Bedrock Knowledge Bases (managed RAG — auto-embeds S3 documents) | ~92-95% | AWS pricing | Configure KB ID, upload SOPs to S3 |
 
 Switch at runtime via environment variable:
@@ -85,7 +85,7 @@ The keyword backend exists as a zero-dependency fallback and for development. Fo
 ## Project Structure
 
 ```
-policy-assist/
+marginalia/
 ├── backend/
 │   ├── src/policy_assist/
 │   │   ├── app.py                FastAPI endpoints
@@ -121,7 +121,7 @@ pip install -e ".[dev]"
 uvicorn policy_assist.app:app --port 8000
 
 # With semantic search (one-time: indexes SOPs into ChromaDB)
-pip install "policy-assist[chromadb]"
+pip install "marginalia[chromadb]"
 PA_RETRIEVAL_BACKEND=chromadb uvicorn policy_assist.app:app --port 8000
 
 # With AWS managed RAG
@@ -130,7 +130,7 @@ PA_RETRIEVAL_BACKEND=bedrock_kb PA_BEDROCK_KB_ID=your-kb-id uvicorn policy_assis
 
 **Extension:**
 1. Chrome → `chrome://extensions` → Developer mode → Load unpacked → select `extension/`
-2. Click the PolicyAssist icon, select region, ask a question
+2. Click the Marginalia icon, select region, ask a question
 
 ---
 

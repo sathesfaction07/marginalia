@@ -1,8 +1,8 @@
-# PolicyAssist — Technical Architecture
+# Marginalia — Technical Architecture
 
 ## Overview
 
-PolicyAssist is a grounded-retrieval tool that answers compliance associate queries using ONLY retrieved SOP text. A Chrome MV3 extension sends queries to a Flask backend that performs semantic search across regional knowledge bases, constructs a context-constrained prompt with conversation history, invokes AWS Bedrock Claude for answer generation, and maintains multi-turn sessions. Supports three swappable retrieval backends with increasing accuracy: keyword (zero dependencies), ChromaDB (local vector search), and Bedrock Knowledge Bases (managed RAG).
+Marginalia is a grounded-retrieval tool that answers compliance associate queries using ONLY retrieved SOP text. A Chrome MV3 extension sends queries to a Flask backend that performs semantic search across regional knowledge bases, constructs a context-constrained prompt with conversation history, invokes AWS Bedrock Claude for answer generation, and maintains multi-turn sessions. Supports three swappable retrieval backends with increasing accuracy: keyword (zero dependencies), ChromaDB (local vector search), and Bedrock Knowledge Bases (managed RAG).
 
 **Design principle:** Retrieval defines truth. The LLM answers only from retrieved text and must abstain when context is insufficient rather than fabricate a plausible-sounding response.
 
@@ -181,7 +181,7 @@ PolicyAssist is a grounded-retrieval tool that answers compliance associate quer
 - Collection per region: `kb_{region_lower}`
 - Embeds document content, stores title + process in metadata
 - Score: `1.0 - cosine_distance`
-- Requires `pip install "policy-assist[chromadb]"` + one-time indexing
+- Requires `pip install "marginalia[chromadb]"` + one-time indexing
 
 **bedrock_kb.py** — AWS managed RAG
 - Uses `bedrock-agent-runtime` client's `retrieve()` API
@@ -351,7 +351,7 @@ class Settings(BaseSettings):
 
     bedrock_model: str = "us.anthropic.claude-sonnet-4-6-20250514-v1:0"
     bedrock_region: str = "us-east-1"
-    kb_bucket: str = "policy-assist-kb"
+    kb_bucket: str = "marginalia-kb"
     kb_prefix: str = "knowledge-bases/"
     supported_regions_str: str = "US,CA,AU,SG,DE,FR"
 
@@ -388,7 +388,7 @@ PA_RETRIEVAL_BACKEND=chromadb uvicorn policy_assist.app:app --port 8000
 PA_RETRIEVAL_BACKEND=bedrock_kb PA_BEDROCK_KB_ID=XXXXX uvicorn policy_assist.app:app --port 8000
 
 # Extension: Chrome → chrome://extensions → Developer mode → Load unpacked → select extension/
-# Click PolicyAssist icon, select region, ask a question
+# Click Marginalia icon, select region, ask a question
 ```
 
 ---

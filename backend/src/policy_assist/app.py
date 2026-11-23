@@ -17,7 +17,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("policy_assist")
 
-app = FastAPI(title="PolicyAssist API")
+app = FastAPI(title="Marginalia API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 retrieval = get_retrieval_backend(

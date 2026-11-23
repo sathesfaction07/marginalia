@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "PolicyAssist",
+    "name": "Marginalia",
     "version": "1.0.0",
     "description": "Instant SOP answers for compliance associates",
     "permissions": ["storage", "activeTab"],
