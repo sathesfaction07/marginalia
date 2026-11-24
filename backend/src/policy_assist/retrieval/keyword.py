@@ -64,7 +64,7 @@ class KeywordBackend(RetrievalBackend):
         if not kb_file.exists():
             return []
 
-        with open(kb_file) as f:
+        with open(kb_file, encoding="utf-8") as f:
             documents = json.load(f)
 
         self._cache[region] = documents
